@@ -17,10 +17,16 @@ global fi_flag_Simulink
 
 newline = sprintf('\n');
 
+ho_value_on = false; 
+plotting = false;
+display_results = false
+
 %% Trim aircraft to desired altitude and velocity
 %%
-altitude = input('Enter the altitude for the simulation (ft)  :  ');
-velocity = input('Enter the velocity for the simulation (ft/s):  ');
+%altitude = input('Enter the altitude for the simulation (ft)  :  ');
+%velocity = input('Enter the velocity for the simulation (ft/s):  ');
+altitude = 15000
+velocity = 500
 
 %% Initial guess for trim
 %%
@@ -32,16 +38,17 @@ aileron = 0.01;            % aileron, degrees
 
 %% Find trim for Hifi model at desired altitude and velocity
 %%
-disp('Trimming High Fidelity Model:');
-fi_flag_Simulink = 1;
-[trim_state_hi, trim_thrust_hi, trim_control_hi, dLEF, xu_hi] = trim_F16(thrust, elevator, alpha, aileron, rudder, velocity, altitude);
+if ho_value_on
+    disp('Trimming High Fidelity Model:');
+    fi_flag_Simulink = 1;
+    [trim_state_hi, trim_thrust_hi, trim_control_hi, dLEF, xu_hi] = trim_F16(thrust, elevator, alpha, aileron, rudder, velocity, altitude);
 
-%% Find the state space model for the hifi model at the desired alt and vel.
-%%
-trim_state_lin = trim_state_hi; trim_thrust_lin = trim_thrust_hi; trim_control_lin = trim_control_hi;
-[A_hi,B_hi,C_hi,D_hi] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3); ...
-		dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
-
+    %% Find the state space model for the hifi model at the desired alt and vel.
+    %%
+    trim_state_lin = trim_state_hi; trim_thrust_lin = trim_thrust_hi; trim_control_lin = trim_control_hi;
+    [A_hi,B_hi,C_hi,D_hi] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3); ...
+            dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
+end
 %% Find trim for Hifi model at desired altitude and velocity
 %%
 disp('Trimming Low Fidelity Model:');
@@ -56,13 +63,16 @@ trim_state_lin = trim_state_lo; trim_thrust_lin = trim_thrust_lo; trim_control_l
 
 %% Make state space model
 %%
-SS_hi = ss(A_hi,B_hi,C_hi,D_hi);
+if ho_value_on
+    SS_hi = ss(A_hi,B_hi,C_hi,D_hi);
+end
 SS_lo = ss(A_lo,B_lo,C_lo,D_lo);
-
 
 %% Make MATLAB matrix
 %%
-mat_hi = [A_hi B_hi; C_hi D_hi];
+if ho_value_on
+    mat_hi = [A_hi B_hi; C_hi D_hi];
+end
 mat_lo = [A_lo B_lo; C_lo D_lo];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,25 +81,35 @@ mat_lo = [A_lo B_lo; C_lo D_lo];
 
 %% Select the components that make up the longitude A matrix
 %%
-A_longitude_hi = mat_hi([3 5 7 8 11 13 14], [3 5 7 8 11 13 14]);
+if ho_value_on
+    A_longitude_hi = mat_hi([3 5 7 8 11 13 14], [3 5 7 8 11 13 14]);
+end
 A_longitude_lo = mat_lo([3 5 7 8 11 13 14], [3 5 7 8 11 13 14]);
 
 %% Select the components that make up the longitude B matrix
 %%
-B_longitude_hi = mat_hi([3 5 7 8 11 13 14], [19 20]);
+if ho_value_on
+    B_longitude_hi = mat_hi([3 5 7 8 11 13 14], [19 20]);
+end
 B_longitude_lo = mat_lo([3 5 7 8 11 13 14], [19 20]);
 
 %% Select the components that make up the longitude C matrix
 %%
-C_longitude_hi = mat_hi([21 23 25 26 29], [3 5 7 8 11 13 14]);
+if ho_value_on
+    C_longitude_hi = mat_hi([21 23 25 26 29], [3 5 7 8 11 13 14]);
+end
 C_longitude_lo = mat_lo([21 23 25 26 29], [3 5 7 8 11 13 14]);
 
 %% Select the components that make up the longitude D matrix
 %%
-D_longitude_hi = mat_hi([21 23 25 26 29], [19 20]);
+if ho_value_on
+    D_longitude_hi = mat_hi([21 23 25 26 29], [19 20]);
+end
 D_longitude_lo = mat_lo([21 23 25 26 29], [19 20]);
 
-SS_long_hi = ss(A_longitude_hi, B_longitude_hi, C_longitude_hi, D_longitude_hi);
+if ho_value_on
+    SS_long_hi = ss(A_longitude_hi, B_longitude_hi, C_longitude_hi, D_longitude_hi);
+end
 SS_long_lo = ss(A_longitude_lo, B_longitude_lo, C_longitude_lo, D_longitude_lo);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,40 +118,52 @@ SS_long_lo = ss(A_longitude_lo, B_longitude_lo, C_longitude_lo, D_longitude_lo);
 
 %% Select the components that make up the lateral A matrix
 %%
-A_lateral_hi = mat_hi([4 6 7 9 10 12 13 15 16], [4 6 7 9 10 12 13 15 16]);
+if ho_value_on
+    A_lateral_hi = mat_hi([4 6 7 9 10 12 13 15 16], [4 6 7 9 10 12 13 15 16]);
+end
 A_lateral_lo = mat_lo([4 6 7 9 10 12 13 15 16], [4 6 7 9 10 12 13 15 16]);
 
 %% Select the components that make up the lateral B matrix
 %%
-B_lateral_hi = mat_hi([4 6 7 9 10 12 13 15 16], [19 21 22]);
+if ho_value_on
+    B_lateral_hi = mat_hi([4 6 7 9 10 12 13 15 16], [19 21 22]);
+end 
 B_lateral_lo = mat_lo([4 6 7 9 10 12 13 15 16], [19 21 22]);
 
 %% Select the components that make up the lateral C matrix
 %%
-C_lateral_hi = mat_hi([22 24 25 27 28 30], [4 6 7 9 10 12 13 15 16]);
+if ho_value_on
+    C_lateral_hi = mat_hi([22 24 25 27 28 30], [4 6 7 9 10 12 13 15 16]);
+end
 C_lateral_lo = mat_lo([22 24 25 27 28 30], [4 6 7 9 10 12 13 15 16]);
 
 %% Select the components that make up the lateral D matrix
 %%
-D_lateral_hi = mat_hi([22 24 25 27 28 30], [19 21 22]);
+if ho_value_on
+    D_lateral_hi = mat_hi([22 24 25 27 28 30], [19 21 22]);
+end
 D_lateral_lo = mat_lo([22 24 25 27 28 30], [19 21 22]);
 
-SS_lat_hi = ss(A_lateral_hi, B_lateral_hi, C_lateral_hi, D_lateral_hi);
+if ho_value_on
+    SS_lat_hi = ss(A_lateral_hi, B_lateral_hi, C_lateral_hi, D_lateral_hi);
+end
 SS_lat_lo = ss(A_lateral_lo, B_lateral_lo, C_lateral_lo, D_lateral_lo);
 
 %% Make longitudal direction SYSTEM matrix
 %%
-sys_long_hi = pck(A_longitude_hi, B_longitude_hi, C_longitude_hi, D_longitude_hi);
+if ho_value_on
+    sys_long_hi = pck(A_longitude_hi, B_longitude_hi, C_longitude_hi, D_longitude_hi);
+end 
 sys_long_lo = pck(A_longitude_lo, B_longitude_lo, C_longitude_lo, D_longitude_lo);
 
 %% Make lateral direction SYSTEM matrix and Find poles for hifi
 %%
-sys_lat_hi = pck(A_lateral_hi, B_lateral_hi, C_lateral_hi, D_lateral_hi);
+if ho_value_on
+    sys_lat_hi = pck(A_lateral_hi, B_lateral_hi, C_lateral_hi, D_lateral_hi);
 
-long_poles_hi = spoles(sys_long_hi);
-lat_poles_hi = spoles(sys_lat_hi);
-
-
+    long_poles_hi = spoles(sys_long_hi);
+    lat_poles_hi = spoles(sys_lat_hi);
+end
 
 %% Make lateral direction SYSTEM matrix and Find poles for lofi
 %%
@@ -145,177 +177,215 @@ lat_poles_lo = spoles(sys_lat_lo);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Display results
 
+if display_results
+    clc;
 
-clc;
+    disp(sprintf('Altitude: %.3f ft.', altitude));
+    disp(sprintf('Velocity: %.3f ft/s\n\n', velocity));
+    if ho_value_on
+        disp('For HIFI Model:  ');
+        disp('Longitudal Direction:  ');
+        disp(newline);
 
-disp(sprintf('Altitude: %.3f ft.', altitude));
-disp(sprintf('Velocity: %.3f ft/s\n\n', velocity));
+        disp('A =')
+        for i=1:length( A_longitude_hi(:,1) )
+            mprintf([ A_longitude_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp('For HIFI Model:  ');
-disp('Longitudal Direction:  ');
-disp(newline);
+        disp('B =')
+        for i=1:length( B_longitude_hi(:,1) )
+            mprintf([ B_longitude_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp('A =')
-for i=1:length( A_longitude_hi(:,1) )
-    mprintf([ A_longitude_hi(i,:) ],'  %.3e ')
-end %for
+        disp('C =')
+        for i=1:length( C_longitude_hi(:,1) )
+            mprintf([ C_longitude_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp('B =')
-for i=1:length( B_longitude_hi(:,1) )
-    mprintf([ B_longitude_hi(i,:) ],'  %.3e ')
-end %for
+        disp('D =')
+        for i=1:length( D_longitude_hi(:,1) )
+            mprintf([ D_longitude_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp('C =')
-for i=1:length( C_longitude_hi(:,1) )
-    mprintf([ C_longitude_hi(i,:) ],'  %.3e ')
-end %for
+        rifd(long_poles_hi)
 
-disp('D =')
-for i=1:length( D_longitude_hi(:,1) )
-    mprintf([ D_longitude_hi(i,:) ],'  %.3e ')
-end %for
+        disp(newline);
 
-rifd(long_poles_hi)
+        disp('Lateral Direaction:  ');
 
-disp(newline);
+        disp(newline);
 
-disp('Lateral Direaction:  ');
+        disp('A =')
+        for i=1:length( A_lateral_hi(:,1) )
+            mprintf([ A_lateral_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp(newline);
+        disp('B =')
+        for i=1:length( B_lateral_hi(:,1) )
+            mprintf([ B_lateral_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp('A =')
-for i=1:length( A_lateral_hi(:,1) )
-    mprintf([ A_lateral_hi(i,:) ],'  %.3e ')
-end %for
+        disp('C =')
+        for i=1:length( C_lateral_hi(:,1) )
+            mprintf([ C_lateral_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp('B =')
-for i=1:length( B_lateral_hi(:,1) )
-    mprintf([ B_lateral_hi(i,:) ],'  %.3e ')
-end %for
+        disp('D =')
+        for i=1:length( D_lateral_hi(:,1) )
+            mprintf([ D_lateral_hi(i,:) ],'  %.3e ')
+        end %for
 
-disp('C =')
-for i=1:length( C_lateral_hi(:,1) )
-    mprintf([ C_lateral_hi(i,:) ],'  %.3e ')
-end %for
+        rifd(lat_poles_hi)
 
-disp('D =')
-for i=1:length( D_lateral_hi(:,1) )
-    mprintf([ D_lateral_hi(i,:) ],'  %.3e ')
-end %for
+        disp(newline);
+        disp(newline);
+    end 
+    disp('For LOFI Model:  ');
+    disp('Longitudal Direction:  ');
+    disp(newline);
 
-rifd(lat_poles_hi)
+    disp('A =')
+    for i=1:length( A_longitude_lo(:,1) )
+        mprintf([ A_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp(newline);
-disp(newline);
-disp('For LOFI Model:  ');
-disp('Longitudal Direction:  ');
-disp(newline);
+    disp('B =')
+    for i=1:length( B_longitude_lo(:,1) )
+        mprintf([ B_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp('A =')
-for i=1:length( A_longitude_lo(:,1) )
-    mprintf([ A_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    disp('C =')
+    for i=1:length( C_longitude_lo(:,1) )
+        mprintf([ C_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp('B =')
-for i=1:length( B_longitude_lo(:,1) )
-    mprintf([ B_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    disp('D =')
+    for i=1:length( D_longitude_lo(:,1) )
+        mprintf([ D_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp('C =')
-for i=1:length( C_longitude_lo(:,1) )
-    mprintf([ C_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    % Display the real, imaginary, frequency (magnitude) and damping ratios
+    rifd(long_poles_lo)
 
-disp('D =')
-for i=1:length( D_longitude_lo(:,1) )
-    mprintf([ D_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    disp(newline);
 
-% Display the real, imaginary, frequency (magnitude) and damping ratios
-rifd(long_poles_lo)
+    disp('Lateral Direaction:  ');
 
-disp(newline);
+    disp(newline);
 
-disp('Lateral Direaction:  ');
+    disp('A =')
+    for i=1:length( A_lateral_lo(:,1) )
+        mprintf([ A_lateral_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp(newline);
+    disp('B =')
+    for i=1:length( B_lateral_lo(:,1) )
+        mprintf([ B_lateral_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp('A =')
-for i=1:length( A_lateral_lo(:,1) )
-    mprintf([ A_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    disp('C =')
+    for i=1:length( C_lateral_lo(:,1) )
+        mprintf([ C_lateral_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp('B =')
-for i=1:length( B_lateral_lo(:,1) )
-    mprintf([ B_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    disp('D =')
+    for i=1:length( D_lateral_lo(:,1) )
+        mprintf([ D_lateral_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp('C =')
-for i=1:length( C_lateral_lo(:,1) )
-    mprintf([ C_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    % Display the real, imaginary, frequency (magnitude) and damping ratios
+    rifd(lat_poles_lo)
+else
+    transfer_function_acc = tf(SS_lo(19,2))
+    z = zero(transfer_function_acc)
+    disp('FINISHED')
+    
+end
+if plotting
+    %% All Poles
+    figure(1); 
+    if ho_value_on
+        pzmap(SS_hi, 'r', SS_lo, 'b');
+        title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nAll Poles\n Blue = lofi Red = hifi.', altitude, velocity);
+    else
+        pzmap(SS_lo, 'b');
+        title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nAll Poles\n Blue = lofi R', altitude, velocity);
+    end
+    title(title_string);
+    sgrid;
 
-disp('D =')
-for i=1:length( D_lateral_lo(:,1) )
-    mprintf([ D_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    %% Long. Poles
+    %%
+    figure(2); 
+    if ho_value_on
+        pzmap(SS_long_hi, 'r', SS_long_lo, 'b');
+        title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLongitudal Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
+    else
+        pzmap(SS_long_lo, 'b');
+        title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLongitudal Directional Poles\n Blue = lofi', altitude, velocity);
+    end
+    title(title_string);
+    sgrid;
 
-% Display the real, imaginary, frequency (magnitude) and damping ratios
-rifd(lat_poles_lo)
+    %% Lat. Poles
+    %%
+    figure(3); 
+    if ho_value_on
+        pzmap(SS_lat_hi, 'r', SS_lat_lo, 'b');
+        title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLateral Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
+    else
+        pzmap(SS_lat_lo, 'b');
+        title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLateral Directional Poles\n Blue = lofi', altitude, velocity);
+    end
+    title(title_string);
+    sgrid;
 
-%% All Poles
-figure(1); 
-pzmap(SS_hi, 'r', SS_lo, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nAll Poles\n Blue = lofi Red = hifi.', altitude, velocity);
-title(title_string);
-sgrid;
+    % Create Bode Plots
 
-%% Long. Poles
-%%
-figure(2); 
-pzmap(SS_long_hi, 'r', SS_long_lo, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLongitudal Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
-title(title_string);
-sgrid;
+    omega = logspace(-2,2,100);
+    if ho_value_on
+        sysg_lat_hi = frsp(sys_lat_hi,omega);
+    end
+    sysg_lat_lo = frsp(sys_lat_lo,omega);
 
-%% Lat. Poles
-%%
-figure(3); 
-pzmap(SS_lat_hi, 'r', SS_lat_lo, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLateral Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
-title(title_string);
-sgrid;
+    if ho_value_on
+        sysg_long_hi = frsp(sys_long_hi,omega);
+    end
+    sysg_long_lo = frsp(sys_long_lo,omega);
 
-% Create Bode Plots
+    figure;
+    BodeCount = 0;
+    for state = 1:1:5
+        for control = 1:1:2
+            BodeCount = BodeCount +1;
+            title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
+            disp(title_string);
+            if ho_value_on
+                vplot('bode', sel(sysg_long_hi,state,control), 'b--', sel(sysg_long_lo,state,control), 'r');
+                legend('hifi', 'lofi');
+            else
+                vplot('bode', sel(sysg_long_lo,state,control), 'r');
+                legend('lofi');
+            end 
+            %pause;
+        end
+    end
 
-omega = logspace(-2,2,100);
-
-sysg_lat_hi = frsp(sys_lat_hi,omega);
-sysg_lat_lo = frsp(sys_lat_lo,omega);
-
-sysg_long_hi = frsp(sys_long_hi,omega);
-sysg_long_lo = frsp(sys_long_lo,omega);
-
-figure;
-BodeCount = 0;
-for state = 1:1:5
-    for control = 1:1:2
-        BodeCount = BodeCount +1;
-        title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
-        vplot('bode', sel(sysg_long_hi,state,control), 'b--', sel(sysg_long_lo,state,control), 'r');
-        disp(title_string);
-        legend('hifi', 'lofi');
-        pause;
+    for state = 1:1:6
+        for control = 1:1:3
+            BodeCount = BodeCount + 1;
+            title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
+            disp(title_string);
+            if ho_value_on
+                vplot('bode', sel(sysg_lat_hi,state,control), 'b--', sel(sysg_lat_lo,state,control), 'r');
+                legend('hifi', 'lofi');
+            else
+                vplot('bode', sel(sysg_lat_lo,state,control), 'r');
+                legend('lofi');
+            end 
+            %pause;
+        end
     end
 end
 
-for state = 1:1:6
-    for control = 1:1:3
-        BodeCount = BodeCount + 1;
-        title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
-        vplot('bode', sel(sysg_lat_hi,state,control), 'b--', sel(sysg_lat_lo,state,control), 'r');
-        disp(title_string);
-        legend('hifi', 'lofi');
-        pause;
-    end
-end
+
