@@ -9,6 +9,13 @@
 % Author: Richard S. Russell
 % 
 %================================================
+%% Producing Latex code of a matrix
+%%
+
+
+
+
+
 clear;
 
 addpath obsmutoolsfornewermatlabversions -END % required for some new MATLAB versions
@@ -21,13 +28,15 @@ ho_value_on = false;
 plotting = false;
 display_results = false
 
+
+
 %% Trim aircraft to desired altitude and velocity
 %%
 %altitude = input('Enter the altitude for the simulation (ft)  :  ');
 %velocity = input('Enter the velocity for the simulation (ft/s):  ');
-altitude = 15000
-velocity = 500
-
+altitude = 30000
+velocity = 600
+command = 'cd';
 %% Initial guess for trim
 %%
 thrust = 5000;          % thrust, lbs
@@ -155,6 +164,8 @@ if ho_value_on
     sys_long_hi = pck(A_longitude_hi, B_longitude_hi, C_longitude_hi, D_longitude_hi);
 end 
 sys_long_lo = pck(A_longitude_lo, B_longitude_lo, C_longitude_lo, D_longitude_lo);
+
+
 
 %% Make lateral direction SYSTEM matrix and Find poles for hifi
 %%
@@ -296,8 +307,9 @@ if display_results
     % Display the real, imaginary, frequency (magnitude) and damping ratios
     rifd(lat_poles_lo)
 else
-    transfer_function_acc = tf(SS_lo(19,2))
-    z = zero(transfer_function_acc)
+    Latex_code = latex_creator(A_longitude_lo)
+    %transfer_function_acc = tf(SS_lo(19,2))
+    %z = zero(transfer_function_acc)
     disp('FINISHED')
     
 end
@@ -387,5 +399,6 @@ if plotting
         end
     end
 end
+
 
 
