@@ -12,7 +12,7 @@ function f = latex_creator(A, which)
         A([2 1],:)= A([1 2],:);
         A(:,[1 3]) = A(:,[3 1]);
         A(:,[2 1]) = A(:,[1 2]);
-
+        
         j = 0;
         while j < size(A,1);
             j = j + 1;
@@ -82,8 +82,39 @@ function f = latex_creator(A, which)
             ii = ii + 1;
         end
     end
+    
+    if which == 5;
+        A(1,:) = [];
+        A(5,:) = [];
+        A(:,1) = [];  
+        ii = 1;
+        
+    end
+    if which == 6;
+        A(1,:) = [];
+        A(5,:) = [];
+        A(:,1) = [];  
+        ii = 1;
+        
+    end
+    if which == 7;
+        A(1,:) = [];
+        A(5,:) = [];
+        A(:,1) = [];  
+        ii = 1;
+        
+    end
+    if which == 8;
+        A(1,:) = [];
+        A(5,:) = [];
+        A(:,1) = [];  
+        ii = 1;
+        
+    end
+    
+    
     latex_code = append(latex_code, ' \end{bmatrix}');
-    f = latex_code;
+    f = A;
 end
 
 
