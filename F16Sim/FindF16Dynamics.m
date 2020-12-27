@@ -307,7 +307,10 @@ if display_results
     % Display the real, imaginary, frequency (magnitude) and damping ratios
     rifd(lat_poles_lo)
 else
-    Latex_code = latex_creator(A_longitude_lo)
+    
+    
+    Latex_codeA = latex_creator(A_longitude_lo, 1)
+
     %transfer_function_acc = tf(SS_lo(19,2))
     %z = zero(transfer_function_acc)
     disp('FINISHED')
