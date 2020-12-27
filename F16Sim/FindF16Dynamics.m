@@ -11,11 +11,6 @@
 %================================================
 %% Producing Latex code of a matrix
 %%
-
-
-
-
-
 clear;
 
 addpath obsmutoolsfornewermatlabversions -END % required for some new MATLAB versions
@@ -34,7 +29,7 @@ display_results = false
 %%
 %altitude = input('Enter the altitude for the simulation (ft)  :  ');
 %velocity = input('Enter the velocity for the simulation (ft/s):  ');
-altitude = 30000
+altitude = 10000
 velocity = 600
 command = 'cd';
 %% Initial guess for trim
@@ -310,6 +305,10 @@ else
     
     
     Latex_codeA = latex_creator(A_longitude_lo, 1)
+    Latex_codeB = latex_creator(B_longitude_lo, 2)
+    Latex_codeC = latex_creator(C_longitude_lo, 3)
+    Latex_codeD = latex_creator(D_longitude_lo, 4)
+    
 
     %transfer_function_acc = tf(SS_lo(19,2))
     %z = zero(transfer_function_acc)
