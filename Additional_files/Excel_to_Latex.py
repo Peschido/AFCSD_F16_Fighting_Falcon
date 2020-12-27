@@ -8,15 +8,15 @@ import numpy as np
 # Add the cross out function to the output
 add_cross_out = False
 indent = '    '
-cross_out_row = 0
-cross_out_column = 0
+cross_out_row = [0, 4]
+cross_out_column = [0, 4]
 # Do we want to reduce the rows?
-reduce_amount = 1
+reduce_amount = 2
 # Do we want to change rows and columns around
 frankenstein_matrix = True
 
-original_seq = ['theta', 'v', 'alpha', 'q', 'delta_t', 'delta_e']
-new_seq = ['v', 'alpha', 'theta', 'q', 'delta_e', 'delta_t']
+original_seq = ['theta', 'v', 'alpha', 'q', 'delta_e']
+new_seq = ['v', 'alpha', 'theta', 'q', 'delta_e']
 
 # Code---------------------------------------------------------------------------
 # Give the location of the file
@@ -36,9 +36,15 @@ array_new = np.zeros((rows - reduce_amount, columns - reduce_amount))  # Create 
 if frankenstein_matrix:
     reduce_matrix = True
     # Fill array with the correct values
-    for j in range(rows - reduce_amount):
-        for i in range(columns - reduce_amount):
-            array_original[j, i] = round(sheet.cell_value(j+reduce_amount, i+reduce_amount), 4)
+    jj = 0
+    for j in range(rows):
+        ii = 0
+        for i in range(columns):
+            if i not in cross_out_row and j not in cross_out_column:
+                array_original[jj, ii] = round(sheet.cell_value(j, i), 4)
+                ii += 1
+        jj += 1
+    print(array_original)
     # Change the rows around
     for i in range(len(original_seq)):
         array_rows_changed[new_seq.index(original_seq[i]), :] = array_original[i, :]
@@ -57,7 +63,7 @@ for j in range(rows - reduce_amount):  # Loops through the rows
             a = str(round(array_new[j, i], 4))
         else:
             a = str(round(sheet.cell_value(j + reduce_amount, i + reduce_amount), 4))
-        if i == cross_out_row and add_cross_out or j == cross_out_column and add_cross_out:
+        if i in cross_out_row and add_cross_out or j in cross_out_column and add_cross_out:
             latex_code += '$\sout{' + a + '}$' + ' & '
         else:
             latex_code += a + ' & '  # Adds the value and separates with the & sign
