@@ -324,43 +324,36 @@ tf_two_state = tf(ss_two_long(2,1));
 
 [num,den] = tfdata(tf_two_state,'v');
 
-% Get step input response
-%step_input_response = step(tf_four_state, tf_two_state, 15);
-
-% Initially calculated components
-k_q_init= num(3);
-T_theta_init = num(2)/k_q_init
-omega_n_init = sqrt(den(3));
-zeta_sp_init = den(2)/(2*omega_n_init);
+%k_q = num(3)
+%T_theta = num(2)/k_q
+%omega_n = sqrt(den(3))
+%zeta_sp = den(2)/(2*omega_n)
 
 % Requirement values
 velocity_ms = velocity * 0.3048;
-omega_n_req = 0.03*velocity_ms;
-zeta_sp_req = 0.5;
-T_theta_req = 1/(0.75*omega_n_req)
+omega_n = 0.03*velocity_ms;
+zeta_sp = 0.5;
+T_theta = 1/(0.75*omega_n);
 
 % Get the gains such that the requirements are fullfilled
-denominator_standard = [1 2*omega_n_req*zeta_sp_req omega_n_req^2];
+denominator_standard = [1 2*omega_n*zeta_sp omega_n^2];
 desired_poles = roots(denominator_standard);
-place(two_stateA, two_stateB, desired_poles);
+place(two_stateA, two_stateB, desired_poles)
 k = place(two_stateA, two_stateB, desired_poles);
 k_alpha = k(1);
 k_q = k(2); 
 
 % Convert vertical gust disturbance to angle of attack 
-gust_disturbance = 4.572; % m/s
-angle_of_attack = atan(gust_disturbance/(velocity_ms));  % radians
+gust_disturbance = 4.572  % m/s
+angle_of_attack = atan(gust_disturbance/(velocity_ms))  % radians
 
 % Find the elevator deflection due to an angle of attack
-elevator_deflection_ref = xu_lo(14);  % radians
+elevator_deflection_ref = xu_lo(14)  % radians
 pitch_rate_ref = 0;  % radians/s
 elevator_deflection_tot = elevator_deflection_ref - angle_of_attack*k_alpha - pitch_rate_ref*k_q
 
-% Desired transfer function
-desired_tf = tf([0, T_theta_req*k_q, k_q], [1, 2*zeta_sp_req*omega_n_req, omega_n_req^2]);
-
-% Updated tranfer function with the new poles
-updated_tf = tf([num(1), num(2), num(3)], [1, 2*zeta_sp_req*omega_n_req, omega_n_req^2])  % Fill in
+%
+step(tf_four, tf_two, 15)
 
 %create latex code
 sympref('FloatingPointOutput',true)
