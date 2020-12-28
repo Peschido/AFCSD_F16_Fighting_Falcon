@@ -31,7 +31,7 @@ saving = false
 %%
 %altitude = input('Enter the altitude for the simulation (ft)  :  ');
 %velocity = input('Enter the velocity for the simulation (ft/s):  ');
-altitude = 5000
+altitude = 20000    
 velocity = 300
 
 %% Initial guess for trim
@@ -362,11 +362,13 @@ desired_tf = tf([0, T_theta_req*k_q, k_q], [1, 2*zeta_sp_req*omega_n_req, omega_
 
 % Updated tranfer function with the new poles
 updated_tf = tf([num(1), num(2), num(3)], [1, 2*zeta_sp_req*omega_n_req, omega_n_req^2])  % Fill in
-gain = 1;  % change gain
-filter = tf([T_theta_req, 1],[T_theta_init 1])*gain
-
-
-
+prelim_filter = tf([T_theta_req, 1],[T_theta_init 1]);
+opt = stepDataOptions('StepAmplitude',-1);
+y=step(updated_tf*prelim_filter,50,opt);
+kf= 1/ y(end);
+filter = prelim_filter * kf;
+step(updated_tf*prelim_filter*kf,6,opt);
+%saveas(gcf,'Step-response-SSerror.png')
 %% Calculate CAP and DB/qs
 %CAP
 cap  = omega_n_req^2 / (velocity_ms/(9.80665*T_theta_req));
