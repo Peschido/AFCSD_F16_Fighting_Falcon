@@ -23,6 +23,8 @@ ho_value_on = false;
 plotting = false;
 display_results = false
 eigenmotion_plots = false
+saving = false
+
 
 
 %% Trim aircraft to desired altitude and velocity
@@ -503,7 +505,7 @@ ylabels    = ["Velocity [ft/s]", "\alpha [deg]", "\theta [deg]", "q [deg/s]"];
 titles_sp   = ["\Delta V", "\Delta \alpha", "\Delta \theta", "\Delta q"];
 titles_ph   = ["\Delta V", "\Delta \alpha", "\Delta \theta", "\Delta q"];
 nr=4;
-list_longitudinal = ["Short Period Time Response", "Phugoid Time Response"];
+list_longitudinal = ["Time Response - Short Period", "Time Response - Phugoid"];
 if eigenmotion_plots == true
     for i = 1:2 
         figure(nr)
@@ -516,6 +518,9 @@ if eigenmotion_plots == true
                 ylabel(ylabels(j))
                 title(titles_sp(j))
                 sgtitle(list_longitudinal(i))
+                if saving == true
+                    saveas(gcf,list_longitudinal(i)+'.png')
+                end
             else
                 subplot(4,1,j)
                 plot(t_phugoid, y_phugoid(j,:))
@@ -523,6 +528,9 @@ if eigenmotion_plots == true
                 ylabel(ylabels(j))
                 title(titles_ph(j))
                 sgtitle(list_longitudinal(i))
+                if saving == true
+                    saveas(gcf,list_longitudinal(i)+'.png')
+                end
             end
         end
     end
@@ -534,7 +542,7 @@ x_ap = eig_vec_lat(:,3);
 x_dr = eig_vec_lat(:,1)+eig_vec_lat(:,2);
 x_sm = eig_vec_lat(:,4);
 
-list_motions_lat = ["Time Response - Aperiodic Roll", "Time Response - Dutch Roll","Time Response - Spiral Time Response"];
+list_motions_lat = ["Time Response - Aperiodic Roll", "Time Response - Dutch Roll","Time Response - Spiral"];
 
 
 % Create time vector(s)
@@ -578,6 +586,9 @@ if eigenmotion_plots == true
                 %title(titles_ap(j))
                 sgtitle(list_motions_lat(i))
                 grid on;
+                if saving == true
+                    saveas(gcf,list_motions_lat(i)+'.png')
+                end
             elseif i == 2
                 subplot(4,1,j)
                 plot(time_dutchroll, y_dutchroll(j,:));
@@ -586,6 +597,9 @@ if eigenmotion_plots == true
                 %title(titles_dr(j))
                 sgtitle(list_motions_lat(i))
                 grid on;
+                if saving == true
+                    saveas(gcf,list_motions_lat(i)+'.png')
+                end
             else 
                 subplot(4,1,j)
                 plot(time_spiral, y_spiral(j,:));
@@ -594,6 +608,9 @@ if eigenmotion_plots == true
                 sgtitle(list_motions_lat(i))
                 %title(titles_sm(j))
                 grid on;
+                if saving == true
+                    saveas(gcf,list_motions_lat(i)+'.png')
+                end
             end
                 %sgtitle(list_motions_lat(i));
                 %saveas(gcf,list_motions_lat(i)+'.png');
