@@ -23,14 +23,17 @@ ho_value_on = false;
 plotting = false;
 display_results = false
 eigenmotion_plots = false
+<<<<<<< HEAD
 saving = false
+=======
+>>>>>>> 9a8bcf2b1d8cc2e62558e0162be1fe238a93eef1
 
 
 %% Trim aircraft to desired altitude and velocity
 %%
 %altitude = input('Enter the altitude for the simulation (ft)  :  ');
 %velocity = input('Enter the velocity for the simulation (ft/s):  ');
-altitude = 30000
+altitude = 10000
 velocity = 600
 
 %% Initial guess for trim
@@ -304,12 +307,33 @@ if display_results
     rifd(lat_poles_lo)
 else
 %% Reduce state space for longitudinal %%%%%%%%%%%%%%%%%%%%
+% State space of four states (chapter 5) 
 ordered_A = A_longitude_lo([3,4,2,5,7,6],[3,4,2,5,7,6]);
 long_A = ordered_A([1,2,3,4],[1,2,3,4]);
 long_B = ordered_A([1,2,3,4],5);
 long_C = C_longitude_lo([3,4,2,5],[3,4,2,5]);
 long_D = D_longitude_lo([3,4,2,4],2);
 ss_long = ss(long_A, long_B, long_C, long_D);
+
+% State space of two states (chapter 6) 
+two_stateA = long_A([2,4],[2,4]);
+two_stateB = long_B([2,4]);
+two_stateC = long_C([2,4],[2,4]);
+two_stateD = long_D([2,4]);
+ss_two_long = ss(two_stateA, two_stateB, two_stateC, two_stateD);
+
+% To get the correct responses
+tf_four_state = tf(ss_long(4,1));
+tf_two_state = tf(ss_two_long(2,1))
+
+[num,den] = tfdata(tf_two_state,'v')
+
+k_q = num(3)
+T_theta = num(2)/k_q
+omega_n = sqrt(den(3))
+zeta_sp = den(2)/(2*omega_n)
+
+%step(tf_four, tf_two, 15)
 
 %create latex code
 sympref('FloatingPointOutput',true)
@@ -318,7 +342,7 @@ Latex_long_B = latex(sym(round(long_B,3)));
 Latex_long_C = latex(sym(round(long_C,3)));
 Latex_long_D = latex(sym(round(long_D,3)));
 
-%%%%%%%%%%%  Reduce state space for lateral %%%%%%%%%%%%%%%%%%%%
+%% Reduce state space for lateral %%%%%%%%%%%%%%%%%%%%
 ordered_A_LAT = A_lateral_lo([4,1,5,6,8,9],[4,1,5,6,8,9]);
 lat_A = ordered_A_LAT([1,2,3,4],[1,2,3,4]);
 lat_B = ordered_A_LAT([1, 2, 3, 4],[5,6]);
@@ -333,10 +357,10 @@ Latex_long_C = latex(sym(round(long_C,3)));
 Latex_long_D = latex(sym(round(long_D,3)));
 
 %create latex code
-Latex_A = latex(sym(round(A_lateral_lo,3)))
-Latex_B = latex(sym(round(B_lateral_lo,3)))
-Latex_C = latex(sym(round(C_lateral_lo,3)))
-Latex_D = latex(sym(round(D_lateral_lo,3)))
+Latex_A = latex(sym(round(A_lateral_lo,3)));
+Latex_B = latex(sym(round(B_lateral_lo,3)));
+Latex_C = latex(sym(round(C_lateral_lo,3)));
+Latex_D = latex(sym(round(D_lateral_lo,3)));
 
 figure(1);
 pzmap(ss_long, 'b');
