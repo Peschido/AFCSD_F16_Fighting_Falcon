@@ -344,7 +344,6 @@ T_theta_req = 1/(0.75*omega_n_req)
 % Get the gains such that the requirements are fullfilled
 denominator_standard = [1 2*omega_n_req*zeta_sp_req omega_n_req^2];
 desired_poles = roots(denominator_standard);
-place(two_stateA, two_stateB, desired_poles);
 k = place(two_stateA, two_stateB, desired_poles);
 k_alpha = k(1);
 k_q = k(2); 
@@ -359,10 +358,12 @@ pitch_rate_ref = 0;  % radians/s
 elevator_deflection_tot = elevator_deflection_ref - angle_of_attack*k_alpha - pitch_rate_ref*k_q
 
 % Desired transfer function
-desired_tf = tf([0, T_theta_req*k_q, k_q], [1, 2*zeta_sp_req*omega_n_req, omega_n_req^2]);
+desired_tf = tf([0, T_theta_req*k_q, k_q], [1, 2*zeta_sp_req*omega_n_req, omega_n_req^2])
 
 % Updated tranfer function with the new poles
 updated_tf = tf([num(1), num(2), num(3)], [1, 2*zeta_sp_req*omega_n_req, omega_n_req^2])  % Fill in
+gain = 1;  % change gain
+filter = tf([T_theta_req, 1],[T_theta_init 1])*gain
 
 %create latex code
 sympref('FloatingPointOutput',true)
