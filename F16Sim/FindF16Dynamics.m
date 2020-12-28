@@ -29,7 +29,7 @@ eigenmotion_plots = true
 %%
 %altitude = input('Enter the altitude for the simulation (ft)  :  ');
 %velocity = input('Enter the velocity for the simulation (ft/s):  ');
-altitude = 10000
+altitude = 30000
 velocity = 600
 
 %% Initial guess for trim
@@ -304,32 +304,38 @@ if display_results
 else
 %% Reduce state space for longitudinal %%%%%%%%%%%%%%%%%%%%
 ordered_A = A_longitude_lo([3,4,2,5,7,6],[3,4,2,5,7,6]);
-long_A = ordered_A([1,2,3,4],[1,2,3,4])
-long_B = ordered_A([1,2,3,4],5)
-long_C = C_longitude_lo([3,4,2,5],[3,4,2,5])
-long_D = D_longitude_lo([3,4,2,4],2)
-ss_long = ss(long_A, long_B, long_C, long_D)
+long_A = ordered_A([1,2,3,4],[1,2,3,4]);
+long_B = ordered_A([1,2,3,4],5);
+long_C = C_longitude_lo([3,4,2,5],[3,4,2,5]);
+long_D = D_longitude_lo([3,4,2,4],2);
+ss_long = ss(long_A, long_B, long_C, long_D);
 
 %create latex code
 sympref('FloatingPointOutput',true)
-Latex_long_A = latex(sym(long_A));
-Latex_long_B = latex(sym(long_B));
-Latex_long_C = latex(sym(long_C));
-Latex_long_D = latex(sym(long_D));
+Latex_long_A = latex(sym(round(long_A,3)));
+Latex_long_B = latex(sym(round(long_B,3)));
+Latex_long_C = latex(sym(round(long_C,3)));
+Latex_long_D = latex(sym(round(long_D,3)));
 
 %%%%%%%%%%%  Reduce state space for lateral %%%%%%%%%%%%%%%%%%%%
 ordered_A_LAT = A_lateral_lo([4,1,5,6,8,9],[4,1,5,6,8,9]);
-lat_A = ordered_A_LAT([1,2,3,4],[1,2,3,4])
-lat_B = ordered_A_LAT([1, 2, 3, 4],[5,6])
-lat_C = C_lateral_lo([4,1,5,6],[4,1,5,6])
-lat_D = D_lateral_lo([4,1,5,6],[2,3])
-ss_lat = ss(lat_A, lat_B, lat_C, lat_D)
+lat_A = ordered_A_LAT([1,2,3,4],[1,2,3,4]);
+lat_B = ordered_A_LAT([1, 2, 3, 4],[5,6]);
+lat_C = C_lateral_lo([4,1,5,6],[4,1,5,6]);
+lat_D = D_lateral_lo([4,1,5,6],[2,3]);
+ss_lat = ss(lat_A, lat_B, lat_C, lat_D);
 
 %create latex code
-Latex_long_A = latex(sym(long_A));
-Latex_long_B = latex(sym(long_B));
-Latex_long_C = latex(sym(long_C));
-Latex_long_D = latex(sym(long_D));
+Latex_long_A = latex(sym(round(long_A,3)));
+Latex_long_B = latex(sym(round(long_B,3)));
+Latex_long_C = latex(sym(round(long_C,3)));
+Latex_long_D = latex(sym(round(long_D,3)));
+
+%create latex code
+Latex_A = latex(sym(round(A_lateral_lo,3)))
+Latex_B = latex(sym(round(B_lateral_lo,3)))
+Latex_C = latex(sym(round(C_lateral_lo,3)))
+Latex_D = latex(sym(round(D_lateral_lo,3)))
 
 figure(1);
 pzmap(ss_long, 'b');
@@ -345,16 +351,16 @@ sgrid;
 [eig_vec_lat,lateral_eig] = eig(lat_A);
 
 % Eigenmotions Longitudinal
-eigenmotion1 = longitudinal_eig(1,1)
-eigenmotion2 = longitudinal_eig(3,3)
+eigenmotion1 = longitudinal_eig(1,1);
+eigenmotion2 = longitudinal_eig(3,3);
 
-if (eigenmotion1 < eigenmotion2)
-    short_period = eigenmotion1
-    phugoid = eigenmotion2
+if (eigenmotion1 < eigenmotion2);
+    short_period = eigenmotion1;
+    phugoid = eigenmotion2;
     
 else 
-    short_period = eigenmotion2
-    phugoid = eigenmotion1   
+    short_period = eigenmotion2;
+    phugoid = eigenmotion1;
 end
 
 %% Eigenmotions lateral
@@ -362,8 +368,8 @@ end
 i=1;
 j=1;
 
-for k = 1 : 4
-    if (imag(lateral_eig(k,k)) == 0)
+for k = 1 : 4;
+    if (imag(lateral_eig(k,k)) == 0);
         roll_spiral(i) = lateral_eig(k,k);
         i=i+1;
     else
@@ -372,9 +378,7 @@ for k = 1 : 4
     end
 end
 
-dutch_roll
-
-if roll_spiral(1) < roll_spiral(2)
+if roll_spiral(1) < roll_spiral(2);
     
     roll = roll_spiral(1);
     spiral = roll_spiral(2);
@@ -387,32 +391,41 @@ end
 
 %% periodic Eigenmotions
 %short period
-omega_n_shortperiod = sqrt( real(short_period)^2 + imag(short_period)^2)
-zeta_shortperiod = -real(short_period)/ omega_n_shortperiod
-period_shortperiod = 2*pi/abs(imag(short_period))
-t_half_shortperiod = log(2)/ abs(real(short_period))
+omega_n_shortperiod = sqrt( real(short_period)^2 + imag(short_period)^2);
+zeta_shortperiod = -real(short_period)/ omega_n_shortperiod;
+period_shortperiod = 2*pi/abs(imag(short_period));
+t_half_shortperiod = log(2)/ abs(real(short_period));
 
 %phugoid
-omega_n_phugoid = sqrt( real(phugoid)^2 + imag(phugoid)^2)
-zeta_phugoid = -real(phugoid)/ omega_n_phugoid
-period_phugoid = 2*pi/abs(imag(phugoid))
-t_half_phugoid = log(2)/ abs(real(phugoid))
+omega_n_phugoid = sqrt( real(phugoid)^2 + imag(phugoid)^2);
+zeta_phugoid = -real(phugoid)/ omega_n_phugoid;
+period_phugoid = 2*pi/abs(imag(phugoid));
+t_half_phugoid = log(2)/ abs(real(phugoid));
 %dutch roll
-omega_n_dutch_roll = sqrt( real(dutch_roll)^2 + imag(dutch_roll)^2)
-zeta_dutch_roll = -real(dutch_roll)/ omega_n_dutch_roll
-period_dutch_roll = 2*pi/abs(imag(dutch_roll))
-t_half_dutch_roll = log(2)/ abs(real(dutch_roll))
+omega_n_dutch_roll = sqrt( real(dutch_roll)^2 + imag(dutch_roll)^2);
+zeta_dutch_roll = -real(dutch_roll)/ omega_n_dutch_roll;
+period_dutch_roll = 2*pi/abs(imag(dutch_roll));
+t_half_dutch_roll = log(2)/ abs(real(dutch_roll));
 
 
 %% aperiodic Eigenmotions
 %aperiodic roll
-timeconst_roll = -1/real(roll)
-omega_roll = sqrt( real(roll)^2 + imag(roll)^2)
-t_half_roll = log(2)/ abs(real(roll))
+timeconst_roll = -1/real(roll);
+omega_roll = sqrt( real(roll)^2 + imag(roll)^2);
+t_half_roll = log(2)/ abs(real(roll));
 %spiral
-timeconst_spiral = -1/real(spiral)
-omega_spiral = sqrt( real(spiral)^2 + imag(spiral)^2)
-t_half_spiral = log(2)/ abs(real(spiral))
+timeconst_spiral = -1/real(spiral);
+omega_spiral = sqrt( real(spiral)^2 + imag(spiral)^2);
+t_half_spiral = log(2)/ abs(real(spiral));
+
+% Create a table which can be used in latex for the periodic motions
+periodic_eigenmotions_values = [omega_n_shortperiod, zeta_shortperiod, period_shortperiod, t_half_shortperiod;
+    omega_n_phugoid, zeta_phugoid, period_phugoid, t_half_phugoid;
+    omega_n_dutch_roll, zeta_dutch_roll, period_dutch_roll, t_half_dutch_roll];
+
+% Create a table which can be used in latex for the aperiodic motions
+aperiodic_eigenmotions_values = [omega_roll, timeconst_roll, t_half_roll;
+    omega_spiral, timeconst_spiral, t_half_spiral];
 
 %% plotting eigenmotion response 
 
