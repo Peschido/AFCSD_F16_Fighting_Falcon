@@ -22,7 +22,7 @@ newline = sprintf('\n');
 ho_value_on = false; 
 plotting = false;
 display_results = false
-
+eigenmotion_plots = true
 
 
 %% Trim aircraft to desired altitude and velocity
@@ -347,8 +347,8 @@ pzmap(ss_lat, 'b');
 title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nPole-plot\n Lateral Eigenmotions', altitude, velocity);
 title(title_string);
 sgrid;
-[vec,longitudinal_eig] = eig(long_A);
-[vec2,lateral_eig] = eig(lat_A);
+[eig_vec_long,longitudinal_eig] = eig(long_A);
+[eig_vec_lat,lateral_eig] = eig(lat_A);
 
 % Eigenmotions Longitudinal
 eigenmotion1 = longitudinal_eig(1,1);
@@ -427,6 +427,54 @@ periodic_eigenmotions_values = [omega_n_shortperiod, zeta_shortperiod, period_sh
 aperiodic_eigenmotions_values = [omega_roll, timeconst_roll, t_half_roll;
     omega_spiral, timeconst_spiral, t_half_spiral];
 
+%% plotting eigenmotion response 
+
+x_sp = eig_vec_long(:,1)+eig_vec_long(:,2);
+x_ph = eig_vec_long(:,3)+eig_vec_long(:,4);
+t_shortperiod = 0: 0.001:7;
+t_phugoid = 0:0.1:500;
+
+y_shortperiod   = zeros(4, length(t_shortperiod));
+y_phugoid       = zeros(4, length(t_phugoid));
+for i=1:length(t_shortperiod)
+    y_shortperiod(:,i) = long_C*expm(t_shortperiod(i)*long_A)*x_sp;  
+end
+
+for i=1:length(t_phugoid)
+   y_phugoid(:,i) = long_C*expm(t_phugoid(i)*long_A)*x_ph; 
+end
+
+
+
+% Plotting Longitudinal Responses
+y_labels    = ["Velocity [ft/s]", "\alpha [deg]", "\theta [deg]", "q [deg/s]"];
+titles_sp   = ["\Delta V", "\Delta \alpha", "\Delta \theta", "\Delta q"];
+titles_ph   = ["\Delta V", "\Delta \alpha", "\Delta \theta", "\Delta q"];
+nr=4;
+list_longitudinal = ["Short Period Time Response", "Phugoid Time Response"];
+if eigenmotion_plots == true
+    for i = 1:2 
+        figure(nr)
+        nr = nr+1;
+        for j = 1:4
+            if i == 1
+                subplot(4,1,j)
+                plot(t_shortperiod, y_shortperiod(j,:))
+                xlabel('Time [sec]')
+                ylabel(y_labels(j))
+                title(titles_sp(j))
+                sgtitle(list_longitudinal(i))
+            else
+                subplot(4,1,j)
+                plot(t_phugoid, y_phugoid(j,:))
+                xlabel("Time [sec]")
+                ylabel(y_labels(j))
+                title(titles_ph(j))
+                sgtitle(list_longitudinal(i))
+            end
+        end
+    end
+end
 
 % Creation of Matrix B by using a part of matrix A. Also, reduction of
 % matrix A by taking out the elevator deflection and ignoring thrust
