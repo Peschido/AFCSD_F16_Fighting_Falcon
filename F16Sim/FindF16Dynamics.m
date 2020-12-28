@@ -23,17 +23,15 @@ ho_value_on = false;
 plotting = false;
 display_results = false
 eigenmotion_plots = false
-<<<<<<< HEAD
 saving = false
-=======
->>>>>>> 9a8bcf2b1d8cc2e62558e0162be1fe238a93eef1
+
 
 
 %% Trim aircraft to desired altitude and velocity
 %%
 %altitude = input('Enter the altitude for the simulation (ft)  :  ');
 %velocity = input('Enter the velocity for the simulation (ft/s):  ');
-altitude = 10000
+altitude = 30000
 velocity = 600
 
 %% Initial guess for trim
