@@ -434,7 +434,7 @@ end
 
 
 % Plotting Longitudinal Responses
-y_labels    = ["Velocity [ft/s]", "\alpha [deg]", "\theta [deg]", "q [deg/s]"];
+ylabels    = ["Velocity [ft/s]", "\alpha [deg]", "\theta [deg]", "q [deg/s]"];
 titles_sp   = ["\Delta V", "\Delta \alpha", "\Delta \theta", "\Delta q"];
 titles_ph   = ["\Delta V", "\Delta \alpha", "\Delta \theta", "\Delta q"];
 nr=4;
@@ -448,17 +448,90 @@ if eigenmotion_plots == true
                 subplot(4,1,j)
                 plot(t_shortperiod, y_shortperiod(j,:))
                 xlabel('Time [sec]')
-                ylabel(y_labels(j))
+                ylabel(ylabels(j))
                 title(titles_sp(j))
                 sgtitle(list_longitudinal(i))
             else
                 subplot(4,1,j)
                 plot(t_phugoid, y_phugoid(j,:))
                 xlabel("Time [sec]")
-                ylabel(y_labels(j))
+                ylabel(ylabels(j))
                 title(titles_ph(j))
                 sgtitle(list_longitudinal(i))
             end
+        end
+    end
+end
+
+
+
+x_ap = eig_vec_lat(:,3);
+x_dr = eig_vec_lat(:,1)+eig_vec_lat(:,2);
+x_sm = eig_vec_lat(:,4);
+
+list_motions_lat = ["Time Response - Aperiodic Roll", "Time Response - Dutch Roll","Time Response - Spiral Time Response"];
+
+
+% Create time vector(s)
+time_aperiodic = 0:0.01:4;
+time_dutchroll = 0:0.01:16;
+time_spiral = 0:0.01:600;
+
+y_aperiodic = zeros(4, length(time_aperiodic));
+y_dutchroll = zeros(4, length(time_dutchroll));
+y_spiral = zeros(4, length(time_spiral));
+
+% Calculating eigenmotion responses based on eigenvectors xap, xdr and xsm
+for i=1:length(time_aperiodic)
+    y_aperiodic(:,i) = lat_C*expm(time_aperiodic(i)*lat_A)*x_ap;
+end
+
+for i=1:length(time_dutchroll)
+    y_dutchroll(:,i) = lat_C*expm(time_dutchroll(i)*lat_A)*x_dr;
+end
+
+for i=1:length(time_spiral)
+    y_spiral(:,i) = lat_C*expm(time_spiral(i)*lat_A)*x_sm;
+end
+
+% Plotting Lateral responses
+ylabels    = ["\beta [deg]", "\phi [deg]", "p [deg/s]", "r [deg/s]"];
+titles_ap   = ["\Delta \beta", "\Delta \phi", "\Delta p", "\Delta r"];
+titles_dr   = ["\Delta \beta", "\Delta \phi", "\Delta p", "\Delta r"];
+titles_sm   = ["\Delta \beta", "\Delta \phi", "\Delta p", "\Delta r"];
+
+if eigenmotion_plots == true
+    for i = 1:3 
+        figure(nr)
+        nr = nr+1;
+        for j = 1:4
+            if i == 1
+                subplot(4,1,j)
+                plot(time_aperiodic, y_aperiodic(j,:));
+                xlabel('Time [sec]')
+                ylabel(ylabels(j))
+                %title(titles_ap(j))
+                sgtitle(list_motions_lat(i))
+                grid on;
+            elseif i == 2
+                subplot(4,1,j)
+                plot(time_dutchroll, y_dutchroll(j,:));
+                xlabel("Time [sec]")
+                ylabel(ylabels(j))
+                %title(titles_dr(j))
+                sgtitle(list_motions_lat(i))
+                grid on;
+            else 
+                subplot(4,1,j)
+                plot(time_spiral, y_spiral(j,:));
+                xlabel("Time [sec]")
+                ylabel(ylabels(j))
+                sgtitle(list_motions_lat(i))
+                %title(titles_sm(j))
+                grid on;
+            end
+                %sgtitle(list_motions_lat(i));
+                %saveas(gcf,list_motions_lat(i)+'.png');
         end
     end
 end

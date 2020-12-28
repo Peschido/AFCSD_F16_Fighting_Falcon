@@ -44,7 +44,8 @@ disp('1.  Steady Wings-Level Flight.');
 disp('2.  Steady Turning Flight.');
 disp('3.  Steady Pull-Up Flight.');
 disp('4.  Steady Roll Flight.');
-FC_flag = input('Your Selection:  ');
+FC_flag = 1;
+%FC_flag = input('Your Selection:  ');
 
 switch FC_flag
     case 1
@@ -67,6 +68,7 @@ end
 OPTIONS = optimset('TolFun',1e-10,'TolX',1e-10,'MaxFunEvals',5e+04,'MaxIter',1e+04);
 
 iter = 1;
+k=1
 while iter == 1
    
     [UX,FVAL,EXITFLAG,OUTPUT] = fminsearch('trimfun',UX0,OPTIONS);
@@ -82,7 +84,12 @@ while iter == 1
     disp(['alpha  = ' num2str(xu(8)*180/pi) ' deg'])
     disp(['dLEF   = ' num2str(xu(17)) ' deg'])
     disp(['Vel.   = ' num2str(velocity) 'ft/s']) 
-    flag = input('Continue trim rountine iterations? (y/n):  ','s'); 
+    %flag = input('Continue trim rountine iterations? (y/n):  ','s'); 
+    flag = 'n'
+    if k < 3
+        flag = 'y';
+        k = k+1;
+    end
     if flag == 'n'
         iter = 0;
     end
