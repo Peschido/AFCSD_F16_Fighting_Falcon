@@ -86,7 +86,7 @@ while iter == 1
     disp(['Vel.   = ' num2str(velocity) 'ft/s']) 
     %flag = input('Continue trim rountine iterations? (y/n):  ','s'); 
     flag = 'n'
-    if k < 3
+    if k < 4
         flag = 'y';
         k = k+1;
     end
