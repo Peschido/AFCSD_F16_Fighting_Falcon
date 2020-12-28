@@ -31,8 +31,8 @@ saving = false
 %%
 %altitude = input('Enter the altitude for the simulation (ft)  :  ');
 %velocity = input('Enter the velocity for the simulation (ft/s):  ');
-altitude = 30000
-velocity = 600
+altitude = 5000
+velocity = 300
 
 %% Initial guess for trim
 %%
@@ -340,7 +340,7 @@ velocity_ms = velocity * 0.3048;
 omega_n_req = 0.03*velocity_ms;
 zeta_sp_req = 0.5;
 T_theta_req = 1/(0.75*omega_n_req)
-
+% kf*(0.243s+1)/ (2.2767s+1)
 % Get the gains such that the requirements are fullfilled
 denominator_standard = [1 2*omega_n_req*zeta_sp_req omega_n_req^2];
 desired_poles = roots(denominator_standard);
@@ -364,6 +364,14 @@ desired_tf = tf([0, T_theta_req*k_q, k_q], [1, 2*zeta_sp_req*omega_n_req, omega_
 updated_tf = tf([num(1), num(2), num(3)], [1, 2*zeta_sp_req*omega_n_req, omega_n_req^2])  % Fill in
 gain = 1;  % change gain
 filter = tf([T_theta_req, 1],[T_theta_init 1])*gain
+
+
+
+%% Calculate CAP and DB/qs
+%CAP
+cap  = omega_n_req^2 / (velocity_ms/(9.80665*T_theta_req));
+dbqs = T_theta_req-1/omega_n_req;
+
 
 %create latex code
 sympref('FloatingPointOutput',true)
@@ -392,16 +400,18 @@ Latex_B = latex(sym(round(B_lateral_lo,3)));
 Latex_C = latex(sym(round(C_lateral_lo,3)));
 Latex_D = latex(sym(round(D_lateral_lo,3)));
 
-figure(1);
-pzmap(ss_long, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nPole-plot\n Longitudinal Eigenmotions', altitude, velocity);
-title(title_string);
-sgrid;
-figure(2);
-pzmap(ss_lat, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nPole-plot\n Lateral Eigenmotions', altitude, velocity);
-title(title_string);
-sgrid;
+if plotting == true
+    figure(1);
+    pzmap(ss_long, 'b');
+    title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nPole-plot\n Longitudinal Eigenmotions', altitude, velocity);
+    title(title_string);
+    sgrid;
+    figure(2);
+    pzmap(ss_lat, 'b');
+    title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nPole-plot\n Lateral Eigenmotions', altitude, velocity);
+    title(title_string);
+    sgrid;
+end
 [eig_vec_long,longitudinal_eig] = eig(long_A);
 [eig_vec_lat,lateral_eig] = eig(lat_A);
 
@@ -732,5 +742,12 @@ if plotting
     end
 end
 
-
+%% Chapter 7
+%
+ordered_A = A_longitude_lo([1,3,4,2,5,6,7],[1,3,4,2,5,6,7]);
+long_A = ordered_A([1,2,3,4,5],[1,2,3,4,5]);
+long_B = ordered_A([1,2,3,4,5],[6,7]);
+long_C = C_longitude_lo([1,3,4,2,5],[1,3,4,2,5]);
+long_D = D_longitude_lo([1,3,4,2,5],[1,2]);
+ss_long = ss(long_A, long_B, long_C, long_D)
 
