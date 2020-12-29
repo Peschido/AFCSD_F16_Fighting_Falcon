@@ -747,9 +747,9 @@ end
 %% Chapter 7
 %
 ordered_A = A_longitude_lo([1,3,4,2,5,6,7],[1,3,4,2,5,6,7]);
-long_A = ordered_A([1,2,3,4,5],[1,2,3,4,5]);
-long_B = ordered_A([1,2,3,4,5],[6,7]);
-long_C = C_longitude_lo([1,3,4,2,5],[1,3,4,2,5]);
-long_D = D_longitude_lo([1,3,4,2,5],[1,2]);
-ss_long = ss(long_A, long_B, long_C, long_D)
+med_A = ordered_A([1,2,3,4,5],[1,2,3,4,5]);
+med_B = ordered_A([1,2,3,4,5],[6,7]);
+med_C = C_longitude_lo([1,3,4,2,5],[1,3,4,2,5]);
+med_D = D_longitude_lo([1,3,4,2,5],[1,2]);
+ss_med = ss(med_A, med_B, med_C, med_D)
 
