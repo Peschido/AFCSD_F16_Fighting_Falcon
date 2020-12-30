@@ -752,10 +752,10 @@ med_B = orderedd_A([1,2,3,4,5],[6,7]);
 med_C = C_longitude_lo([1,3,4,2,5],[1,3,4,2,5]);
 med_D = D_longitude_lo([1,3,4,2,5],[1,2]);
 
-med_AA = med_A([1,4,2,3,5],:)
+med_AA = med_A([1,4,2,3,5],[1,4,2,3,5])
 med_BB = med_B([1,4,2,3,5],:)
-med_CC = med_C([1,4,2,3,5],:)
+med_CC = med_C([1,4,2,3,5],[1,4,2,3,5])
 med_DD = med_D([1,4,2,3,5],:)
 
-ss_med = ss(med_A, med_B, med_C, med_D); 
+ss_med = ss(med_AA, med_BB, med_CC, med_DD); 
 
