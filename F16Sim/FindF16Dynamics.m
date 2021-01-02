@@ -324,7 +324,7 @@ ss_two_long = ss(two_stateA, two_stateB, two_stateC, two_stateD);
 tf_four_state = tf(ss_long(4,1));
 tf_two_state = tf(ss_two_long(2,1));
 
-[num,den] = tfdata(tf_two_state,'v');
+[num,den] = tfdata(tf_two_state,'v')
 
 % Get step input response
 %step_input_response = step(tf_four_state, tf_two_state, 15);
